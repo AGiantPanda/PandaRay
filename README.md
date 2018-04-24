@@ -1,2 +1,2 @@
 # PandaRay
-a physically based renderer.
+Okay, let's see when can I finish the 0.001 version...

@@ -1,9 +1,14 @@
+#pragma once
+
 #include <math.h>
 #include <stdlib.h>
 #include <iostream>
 
 template<class T>
 class vec3 {
+private:
+    T e[3];
+
 public:
     vec3() {};
     vec3(T e0, T e1, T e2) { e[0] = e0; e[1] = e1; e[2] = e2; }
@@ -33,9 +38,6 @@ public:
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
     }
     inline void make_unit_vector();
-
-private:
-    T e[3];
 };
 
 template<class T>

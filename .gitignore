@@ -1,5 +1,3 @@
 ignore files
 
-*.out
-*.ppm
 build/

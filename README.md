@@ -1,2 +1,11 @@
 # PandaRay
-Okay, let's see when can I finish the 0.001 version...
+try to write a ray tracing renderer with modern c++14
+
+## Progress
+~~vec3~~  
+~~ray~~  
+~~sphere~~
+
+cmake files  
+shpere tHit position  
+multi thread

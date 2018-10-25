@@ -19,10 +19,13 @@ bool Sphere::Intersect(const Ray& ray, float *tHit) const {
     float c = dot(oc, oc) - radius * radius;
     float discriminant = b*b - 4*a*c;
 
-    if (discriminant < 0) {
+    if (discriminant > 0) {
         return false;
     } else {
         *tHit = (-b - sqrt(discriminant)) / (2.0 * a);
-        return true;
+        if (*tHit < 0) {
+          *tHit = (-b + sqrt(discriminant)) / (2.0 * a);
+        }
+        return *tHit;
     }
 }

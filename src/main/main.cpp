@@ -27,7 +27,7 @@ int main(int argc, char const *argv[])
     Vec3<float> vertical(0.0, 12.0, 0.0);
     Vec3<float> origin(0.0, 0.0, 0.0);
 
-    Sphere s(0.0, 0.0, -10.0, 9.0);
+    Sphere s(0.0, 0.0, -11.0, 9.0);
     float* t = new float(0);
 
     for (int j = ny-1; j>=0; j--) {
@@ -38,7 +38,8 @@ int main(int argc, char const *argv[])
             // Vec3<float> col(float(i) / float(nx), float(j) / float(ny), 0.2);
             Vec3<float> col = color(r);
             if (s.Intersect(r, t)) {
-                col = Vec3f(1.0, 0.0, 0.0);
+                float c = (*t - 1.0) * 0.1;
+                col = Vec3f(c, 0.0, 0.0);
             }
             int ir = int(255.99 * col[0]);
             int ig = int(255.99 * col[1]);

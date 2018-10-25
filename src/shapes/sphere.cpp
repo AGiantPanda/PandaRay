@@ -19,13 +19,26 @@ bool Sphere::Intersect(const Ray& ray, float *tHit) const {
     float c = dot(oc, oc) - radius * radius;
     float discriminant = b*b - 4*a*c;
 
-    if (discriminant > 0) {
+    if (discriminant < 0) {
         return false;
     } else {
-        *tHit = (-b - sqrt(discriminant)) / (2.0 * a);
-        if (*tHit < 0) {
-          *tHit = (-b + sqrt(discriminant)) / (2.0 * a);
+        float min = (-b - sqrt(discriminant)) / (2.0 * a);
+        float max = (-b + sqrt(discriminant)) / (2.0 * a);
+        if (min > max) {
+            int tmp;
+            tmp = std::move(max);
+            max = std::move(min);
+            min = std::move(tmp);
         }
-        return *tHit;
+
+        if (min >= 0.0) {
+            *tHit = min;
+            return true;
+        } else if (max >= 0.0) {
+            *tHit = max;
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -8,8 +8,8 @@
 
 using namespace std;
 
-Vec3<float> color(const Ray& r) {
-    float t = (r.Direction().y() + 6.0) / 12.0;
+Vec3<float> bgcolor(const Ray& r) {
+    float t = (r.Direction().y() + 1.0) / 2.0;
     return float(1.0 - t)*Vec3<float>(1.0, 1.0, 1.0) + t*Vec3<float>(0.5, 0.7, 1.0);
 }
 
@@ -27,8 +27,8 @@ int main(int argc, char const *argv[])
     Vec3<float> vertical(0.0, 12.0, 0.0);
     Vec3<float> origin(0.0, 0.0, 0.0);
 
-    Sphere s(0.0, 0.0, -11.0, 9.0);
-    float* t = new float(0);
+    Sphere s(0.0, 0.0, -10.0, 8.0);
+    float t = 0.0;
 
     for (int j = ny-1; j>=0; j--) {
         for (int i = 0; i < nx; i++) {
@@ -36,9 +36,10 @@ int main(int argc, char const *argv[])
             float v = float(j) / float(ny);
             Ray r(origin, lower_left_corner+u*horizontal+v*vertical);
             // Vec3<float> col(float(i) / float(nx), float(j) / float(ny), 0.2);
-            Vec3<float> col = color(r);
+            Vec3<float> col = bgcolor(r);
             if (s.Intersect(r, t)) {
-                float c = (*t - 1.0) * 0.1;
+                if (t > 9) cout << t << endl;
+                float c = (t - 2.0) / 4.0;
                 col = Vec3f(c, 0.0, 0.0);
             }
             int ir = int(255.99 * col[0]);

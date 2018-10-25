@@ -7,5 +7,5 @@ try to write a ray tracing renderer with modern c++14
 ~~sphere~~
 
 cmake files  
-shpere tHit position  
-multi thread
+sphere tHit position  
+multi-thread

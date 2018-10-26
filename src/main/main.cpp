@@ -33,19 +33,18 @@ int main(int argc, char const *argv[])
     Vec3<float> origin(0.0, 0.0, 0.0);
 
     Sphere s(0.0, 0.0, -10.0, 8.0);
-    float t = 0.0;
 
     for (int j = ny-1; j>=0; j--) {
         for (int i = 0; i < nx; i++) {
             float u = float(i) / float(nx);
             float v = float(j) / float(ny);
-            Ray r(origin, lower_left_corner+u*horizontal+v*vertical);
+            Vec3f dir = unit_vector(lower_left_corner+u*horizontal+v*vertical);
+            Ray r(origin, dir);
             // Vec3<float> col(float(i) / float(nx), float(j) / float(ny), 0.2);
             Vec3<float> col = bgcolor(r);
-            if (s.Intersect(r, t)) {
-                if (t > 9) cout << t << endl;
-                float c = (t - 2.0) / 4.0;
-                col = normalcolor(r, t, s);
+            hit_record rec;
+            if (s.IntersectRec(r, rec)) {
+                col = 0.5 * (rec.normal + Vec3f(1.0, 1.0, 1.0));
             }
             int ir = int(255.99 * col[0]);
             int ig = int(255.99 * col[1]);

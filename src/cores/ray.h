@@ -1,16 +1,23 @@
 #pragma once
 
+#include "../cores/pandaray.h"
 #include "../cores/vec3.h"
 
-// template<class T>
 class Ray {
-private:
-    Vec3f A;
-    Vec3f B;
-
 public:
-    Ray(const Vec3f& a, const Vec3f& b) { A = a; B = unit_vector(b - a); };
-    Vec3f Origin() const { return A; }
-    Vec3f Direction() const { return B; }
-    Vec3f Point_At_Parameter(float t) const { return A + t*B; }
+    Ray() : tMin(-Epsilon), tMax(Infinity), time(0.0f) {}
+    Ray(const Vec3f& a, const Vec3f& b, float tmin = -Epsilon, 
+        float tmax = Infinity, float time = 0.0f)
+        : o(a), d(b), tMin(tmin), tMax(tmax), time(time) {}
+
+    Vec3f Origin() const { return o; }
+    Vec3f Direction() const { return d; }
+    Vec3f Point_At_Parameter(float t) const { return o + t*d; }
+    Vec3f operator()(float t) const { return o + t*d; }
+    
+    Vec3f o;
+    Vec3f d;
+    float tMin;
+    float tMax;
+    float time;
 };

@@ -120,6 +120,7 @@ inline std::ostream& operator<<(std::ostream &os, const Vec3<T> &t) {
     return os;
 }
 
+// dot, cross and unit_vector make
 template<class T>
 inline T dot(const Vec3<T> &v1, const Vec3<T> &v2) {
     return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];

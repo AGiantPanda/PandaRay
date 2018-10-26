@@ -1,13 +1,13 @@
 #pragma once
 
+#include "../cores/pandaray.h"
 #include "../cores/vec3.h"
 #include "../cores/ray.h"
+#include "../cores/shape.h"
 
-class Sphere
+class Sphere : public Shape
 {
 private:
-    float radius;
-    Vec3f center;
 
 public:
     Sphere() = default;
@@ -16,5 +16,9 @@ public:
     
     inline Vec3f Center() const { return center; }
     inline float Radius() const { return radius; }
-    bool Intersect(const Ray &ray, float &tHit) const;
+    virtual bool Intersect(const Ray &ray, float &tHit) const;
+    virtual bool IntersectRec(const Ray &ray, hit_record &hit) const;
+    
+    float radius;
+    Vec3f center;
 };

@@ -8,9 +8,14 @@
 
 using namespace std;
 
-Vec3<float> bgcolor(const Ray& r) {
+Vec3f bgcolor(const Ray& r) {
     float t = (r.Direction().y() + 1.0) / 2.0;
-    return float(1.0 - t)*Vec3<float>(1.0, 1.0, 1.0) + t*Vec3<float>(0.5, 0.7, 1.0);
+    return float(1.0 - t)*Vec3f(1.0, 1.0, 1.0) + t*Vec3f(0.5, 0.7, 1.0);
+}
+
+Vec3f normalcolor(const Ray &r, const float t, const Sphere &s) {
+    Vec3f normal = unit_vector(r.Point_At_Parameter(t) - s.Center());
+    return 0.5 * (normal + Vec3f(1.0, 1.0, 1.0));
 }
 
 int main(int argc, char const *argv[])
@@ -40,7 +45,7 @@ int main(int argc, char const *argv[])
             if (s.Intersect(r, t)) {
                 if (t > 9) cout << t << endl;
                 float c = (t - 2.0) / 4.0;
-                col = Vec3f(c, 0.0, 0.0);
+                col = normalcolor(r, t, s);
             }
             int ir = int(255.99 * col[0]);
             int ig = int(255.99 * col[1]);

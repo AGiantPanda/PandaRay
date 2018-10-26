@@ -13,5 +13,8 @@ public:
     Sphere() = default;
     Sphere(Vec3f cc, float rr);
     Sphere(float p0, float p1, float p2, float rr);
+    
+    inline Vec3f Center() const { return center; }
+    inline float Radius() const { return radius; }
     bool Intersect(const Ray &ray, float &tHit) const;
 };

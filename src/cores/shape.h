@@ -11,5 +11,6 @@ struct hit_record {
 class Shape {
 public:
     virtual bool Intersect(const Ray &ray, float &t) const = 0;
+    // return hit point's normal, point, etc.
     virtual bool IntersectRec(const Ray &ray, hit_record &hit) const = 0;
 };

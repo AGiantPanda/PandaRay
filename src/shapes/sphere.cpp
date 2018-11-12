@@ -25,10 +25,10 @@ bool Sphere::Intersect(const Ray &ray, float &tHit) const {
         float min = (-b - sqrt(discriminant)) / (2.0 * a);
         float max = (-b + sqrt(discriminant)) / (2.0 * a);
 
-        if (min >= ray.tMin || min < ray.tMax) {
+        if (min >= ray.tMin && min < ray.tMax) {
             tHit = min;
             return true;
-        } else if (max >= ray.tMin || max < ray.tMax) {
+        } else if (max >= ray.tMin && max < ray.tMax) {
             tHit = max;
             return true;
         } else {

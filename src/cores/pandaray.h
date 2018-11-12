@@ -1,7 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <limits>
+#include <vector>
+#include <memory>
 
 static float Infinity = std::numeric_limits<float>::infinity();
 static float Epsilon = std::numeric_limits<float>::epsilon() * 0.1;

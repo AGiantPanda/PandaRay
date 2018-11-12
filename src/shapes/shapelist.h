@@ -10,8 +10,11 @@ class Shape_List : public Shape
 private:
 
 public:
-    Shape_List() {}
-    Shape_List(Shape **l, int n) : list(l), size(n) {}
+    Shape_List() : size(0) {};
+    void Add(std::unique_ptr<Shape> s) {
+        list.push_back(move(s));
+        size += 1;
+    }
     
     virtual bool Intersect(const Ray &ray, float &tHit) const {
         return false;
@@ -32,6 +35,6 @@ public:
         return ishitted;
     };
 
-    Shape **list;
+    std::vector<std::unique_ptr<Shape>> list;
     int size;
 };

@@ -6,9 +6,11 @@
 class Ray {
 public:
     Ray() : tMin(-Epsilon), tMax(Infinity), time(0.0f) {}
-    Ray(const Vec3f& a, const Vec3f& b, float tmin = -Epsilon, 
+    Ray(const Vec3f a, const Vec3f b, float tmin = -Epsilon, 
         float tmax = Infinity, float time = 0.0f)
-        : o(a), d(b), tMin(tmin), tMax(tmax), time(time) {}
+        : o(a), tMin(tmin), tMax(tmax), time(time) {
+            d = unit_vector(b);
+        }
 
     Vec3f Origin() const { return o; }
     Vec3f Direction() const { return d; }

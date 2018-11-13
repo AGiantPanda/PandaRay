@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ray.h"
+#include "../cores/pandaray.h"
 
 struct hit_record {
     float t;

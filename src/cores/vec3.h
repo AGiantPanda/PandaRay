@@ -83,8 +83,8 @@ public:
     };
     template<class U>
     inline Vec3& operator/=(const U t){
-        T k = 1.0 / (T)k;
-
+        T k = 1.0 / (T)t;
+        
         e[0] *= (T)k;
         e[1] *= (T)k;
         e[2] *= (T)k;

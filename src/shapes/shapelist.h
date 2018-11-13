@@ -1,8 +1,6 @@
 #pragma once
 
 #include "../cores/pandaray.h"
-#include "../cores/vec3.h"
-#include "../cores/ray.h"
 #include "../cores/shape.h"
 
 class Shape_List : public Shape

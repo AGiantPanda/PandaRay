@@ -28,7 +28,7 @@ Vec3f bgcolor(const Ray& r) {
 Vec3f color(const Ray &r, Shape_List &world, int cur) {
     hit_record rec;
     cur += 1;
-    if(cur <= 50 && world.IntersectRec(r, rec)) {
+    if(cur <= 10 && world.IntersectRec(r, rec)) {
         Vec3f tar = rec.p + rec.normal + random_in_unit_sphere();
         Vec3f dir = unit_vector(tar - rec.p);
         return 0.5 * color(Ray(rec.p, dir), world, cur);

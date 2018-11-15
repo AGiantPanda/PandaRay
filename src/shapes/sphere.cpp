@@ -1,15 +1,17 @@
 #include "sphere.h"
 
-Sphere::Sphere(Vec3f cc, float rr) {
+Sphere::Sphere(Vec3f cc, float rr, const std::shared_ptr<Material> &mm) {
     center = cc;
     radius = rr;
+    mat = mm;
 }
 
-Sphere::Sphere(float p0, float p1, float p2, float rr) {
+Sphere::Sphere(float p0, float p1, float p2, float rr, const std::shared_ptr<Material> &mm) {
     center[0] = p0;
     center[1] = p1;
     center[2] = p2;
     radius = rr;
+    mat = mm;
 }
 
 bool Sphere::Intersect(const Ray &ray, float &tHit) const {
@@ -44,6 +46,7 @@ bool Sphere::IntersectRec(const Ray &ray, hit_record &hit) const {
     } else {
         hit.p = ray(hit.t);
         hit.normal = unit_vector(hit.p - center);
+        hit.mat_ptr = mat;
         return true;
     }
 }

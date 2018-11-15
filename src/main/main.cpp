@@ -5,40 +5,31 @@
 #include "../cores/camera.h"
 #include "../shapes/sphere.h"
 #include "../shapes/shapelist.h"
+#include "../materials/lambertian.h"
+#include "../materials/metal.h"
 
 using namespace std;
 
-random_device rd;
-mt19937 gen(rd());
-uniform_real_distribution<float> dis(-0.5, 0.5);
-
-Vec3f random_in_unit_sphere() {
-    Vec3f p;
-    do {
-        p = 2.0*Vec3f(dis(gen), dis(gen), dis(gen));
-    } while (p.squared_length() >= 1.0);
-    return p;
-}
-
-Vec3f bgcolor(const Ray& r) {
-    float t = (r.Direction().y() + 1.0) / 2.0;
-    return float(1.0 - t)*Vec3f(1.0, 1.0, 1.0) + t*Vec3f(0.5, 0.7, 1.0);
-}
-
-Vec3f color(const Ray &r, Shape_List &world, int cur) {
+Vec3f color(const Ray &r, Shape_List &world, int depth) {
     hit_record rec;
-    cur += 1;
-    if(cur <= 10 && world.IntersectRec(r, rec)) {
-        Vec3f tar = rec.p + rec.normal + random_in_unit_sphere();
-        Vec3f dir = unit_vector(tar - rec.p);
-        return 0.5 * color(Ray(rec.p, dir), world, cur);
+    if(world.IntersectRec(r, rec)) {
+        Ray scattered;
+        Vec3f attenuation;
+        if (depth < 20 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+            return attenuation * color(scattered, world, depth+1);
+        } else {
+            return Vec3f(0, 0, 0);
+        }
     } else {
-        return bgcolor(r);
+        // background color
+        float t = (r.Direction().y() + 1.0) / 2.0;
+        return float(1.0 - t)*Vec3f(1.0, 1.0, 1.0) + t*Vec3f(0.5, 0.7, 1.0);
     }
 }
 
 int main(int argc, char const *argv[])
 {
+
     std::ofstream output;
     output.open("output.ppm");
 
@@ -51,8 +42,10 @@ int main(int argc, char const *argv[])
     Camera cam;
 
     Shape_List world;
-    world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5));
-    world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100));
+    world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.8, 0.3, 0.3))));
+    world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
+    world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.3)));
+    world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.8, 0.8), 1.0)));
     
     for (int j = ny-1; j>=0; j--) {
         for (int i = 0; i < nx; i++) {

@@ -29,6 +29,8 @@ Vec3f color(const Ray &r, Shape_List &world, int depth) {
 
 int main(int argc, char const *argv[])
 {
+    clock_t begin = clock();
+    cout << "rendering start..." << endl;
 
     std::ofstream output;
     output.open("output.ppm");
@@ -66,5 +68,9 @@ int main(int argc, char const *argv[])
     }
 
     output.close();
+
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    cout << "redering finished, time: " << elapsed_secs << endl;
     return 0;
 }

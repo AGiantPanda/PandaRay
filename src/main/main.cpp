@@ -5,32 +5,37 @@
 #include "../cores/camera.h"
 #include "../shapes/sphere.h"
 #include "../shapes/shapelist.h"
+#include "../materials/lambertian.h"
+#include "../materials/metal.h"
 
 using namespace std;
 
-Vec3f bgcolor(const Ray& r) {
-    float t = (r.Direction().y() + 1.0) / 2.0;
-    return float(1.0 - t)*Vec3f(1.0, 1.0, 1.0) + t*Vec3f(0.5, 0.7, 1.0);
-}
-
-Vec3f color(const Ray &r, Shape_List &world) {
+Vec3f color(const Ray &r, Shape_List &world, int depth) {
     hit_record rec;
     if(world.IntersectRec(r, rec)) {
-        return 0.5 * Vec3f(rec.normal.x()+1, rec.normal.y()+1, rec.normal.z()+1);
+        Ray scattered;
+        Vec3f attenuation;
+        if (depth < 20 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+            return attenuation * color(scattered, world, depth+1);
+        } else {
+            return Vec3f(0, 0, 0);
+        }
     } else {
-        return bgcolor(r);
+        // background color
+        float t = (r.Direction().y() + 1.0) / 2.0;
+        return float(1.0 - t)*Vec3f(1.0, 1.0, 1.0) + t*Vec3f(0.5, 0.7, 1.0);
     }
 }
 
 int main(int argc, char const *argv[])
 {
+    clock_t begin = clock();
+    cout << "rendering start..." << endl;
+
     std::ofstream output;
     output.open("output.ppm");
 
     int n_sample = 128;
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<float> dis(0.0, 1.0);
 
     int nx = 200;
     int ny = 100;
@@ -39,9 +44,11 @@ int main(int argc, char const *argv[])
     Camera cam;
 
     Shape_List world;
-    world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5));
-    world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100));
-
+    world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.8, 0.3, 0.3))));
+    world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
+    world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.3)));
+    world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.8, 0.8), 1.0)));
+    
     for (int j = ny-1; j>=0; j--) {
         for (int i = 0; i < nx; i++) {
             Vec3f col(0.0, 0.0, 0.0);
@@ -49,9 +56,10 @@ int main(int argc, char const *argv[])
                 float u = float(i+dis(gen)) / float(nx);
                 float v = float(j+dis(gen)) / float(ny);
                 Ray r = cam.GetRay(u, v);
-                col += color(r, world);
+                col += color(r, world, 0);
             }
             col /= float(n_sample);
+            col = Vec3f(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
             int ir = int(255.99 * col[0]);
             int ig = int(255.99 * col[1]);
             int ib = int(255.99 * col[2]);
@@ -60,5 +68,9 @@ int main(int argc, char const *argv[])
     }
 
     output.close();
+
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    cout << "redering finished, time: " << elapsed_secs << endl;
     return 0;
 }

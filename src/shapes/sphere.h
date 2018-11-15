@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../cores/pandaray.h"
 #include "../cores/shape.h"
 
 class Sphere : public Shape
@@ -8,9 +7,8 @@ class Sphere : public Shape
 private:
 
 public:
-    Sphere() = default;
-    Sphere(Vec3f cc, float rr);
-    Sphere(float p0, float p1, float p2, float rr);
+    Sphere(Vec3f cc, float rr, const std::shared_ptr<Material> &mm);
+    Sphere(float p0, float p1, float p2, float rr, const std::shared_ptr<Material> &mm);
     
     inline Vec3f Center() const { return center; }
     inline float Radius() const { return radius; }

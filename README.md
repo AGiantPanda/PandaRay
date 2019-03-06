@@ -9,7 +9,7 @@ try to write a ray tracing renderer with modern c++14
 - [x] ray  
 - [x] sphere  
 - [x] sphere tHit position
-- [ ] improve structure  
+- [ ] I combined material to shape part, it is a bad design and should be changed
 - [ ] cmake files  
 - [ ] multi-thread
 

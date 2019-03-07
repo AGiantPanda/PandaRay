@@ -1,4 +1,4 @@
-#include "./cores/pandaray.h"
+#include "../cores/pandaray.h"
 
 #include "../cores/vec3.h"
 #include "../cores/ray.h"

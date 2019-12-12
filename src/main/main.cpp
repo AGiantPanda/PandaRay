@@ -37,8 +37,10 @@ int main(int argc, char const *argv[])
 
     int n_sample = 128;
 
+    // image resolutions
     int nx = 200;
     int ny = 100;
+    int totalPixel = nx * ny;
     output << "P3\n" << nx << " " << ny << "\n255\n";
 
     Camera cam;
@@ -49,6 +51,7 @@ int main(int argc, char const *argv[])
     world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.3)));
     world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.8, 0.8), 1.0)));
     
+    int pixCount = 0;
     for (int j = ny-1; j>=0; j--) {
         for (int i = 0; i < nx; i++) {
             Vec3f col(0.0, 0.0, 0.0);
@@ -64,8 +67,12 @@ int main(int argc, char const *argv[])
             int ig = int(255.99 * col[1]);
             int ib = int(255.99 * col[2]);
             output << ir << " " << ig << " " << ib << "\n";
+            pixCount++;
+            cout << "\rrendering progress: " << int(pixCount * 100 / totalPixel) << "%" << flush;
         }
     }
+
+    cout << endl;
 
     output.close();
 

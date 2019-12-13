@@ -10,7 +10,7 @@ public:
 inline Vec3f random_in_unit_sphere() {
     Vec3f p;
     do {
-        p = 2.0*Vec3f(dis(gen), dis(gen), dis(gen));
+        p = 2.0*Vec3f(random_double(), random_double(), random_double()) - Vec3f(1, 1, 1);
     } while (p.squared_length() >= 1.0);
     return p;
 }

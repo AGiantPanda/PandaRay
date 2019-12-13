@@ -8,13 +8,18 @@
 #include <limits>
 #include <vector>
 #include <memory>
+#include <string>
+#include <functional>
 #include <random>
 #include <ctime>
 
-
-static std::random_device rd;
-static std::mt19937 gen(rd());
-static std::uniform_real_distribution<float> dis(-0.5, 0.5);
+inline double random_double()
+{
+	static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+	static std::mt19937 generator;
+	static std::function<double()> rand_generator = std::bind(distribution, generator);
+	return rand_generator();
+}
 
 static float Infinity = std::numeric_limits<float>::infinity();
 static float Epsilon = std::numeric_limits<float>::epsilon() * 0.1;

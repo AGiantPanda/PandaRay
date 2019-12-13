@@ -38,17 +38,17 @@ Vec3f gammaCorrection(Vec3f &color, float gamma)
 	return color;
 }
 
-void genRandomWorld(Shape_List &world)
+void genRandomWorld(Shape_List &world, int num)
 {
 	world.Add(make_unique<Sphere>(0.0, -1000.0, 0.0, 1000, make_shared<Lambertian>(Vec3f(0.5, 0.5, 0.5))));
 
-	for (int i = -11; i < 11; i++)
+	for (int i = -num; i < num; i++)
 	{
-		for (int j = -11; j < 11; j++)
+		for (int j = -num; j < num; j++)
 		{
 			float ranMat = random_double();
 			Vec3f ranCenter(i + 0.9*random_double(), 0.2, j + 0.9*random_double());
-			float ranRadius = random_double() * 0.2 + 0.2;
+			float ranRadius = random_double() * 0.1 + 0.2;
 			if ((ranCenter - Vec3f(4, 0.2, 0)).length() > 0.9)
 			{
 				if (ranMat < 0.6)
@@ -86,11 +86,11 @@ int main(int argc, char const *argv[])
 {
 	string filename = "output";
 
-    int n_sample = 64;
+    int n_sample = 256;
 
     // image resolutions
-    int nx = 200;
-    int ny = 100;
+    int nx = 800;
+    int ny = 400;
     int totalPixel = nx * ny;
 	float aspectRatio = float(nx) / float(ny);
 
@@ -103,17 +103,18 @@ int main(int argc, char const *argv[])
     output << "P3\n" << nx << " " << ny << "\n255\n";
 
 	// world settings
-	Vec3f lookFrom(3, 3, 2);
-	Vec3f lookAt(0, 0, -1);
+	Vec3f lookFrom(8, 2, 2);
+	Vec3f lookAt(0, 0, 0);
 	float dist_to_focus = (lookFrom - lookAt).length();
-	float aperture = 2.0;
-    Camera cam(lookFrom, lookAt, Vec3f(0, 1, 0), 20, aspectRatio, aperture, dist_to_focus);
+	float aperture = 1.0;
+    Camera cam(lookFrom, lookAt, Vec3f(0, 1, 0), 40, aspectRatio, aperture, dist_to_focus);
 
     Shape_List world;
-    world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.1, 0.2, 0.5))));
-    world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
-    world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.0)));
-	world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Dielectric>(1.5)));
+	genRandomWorld(world, 11);
+ //   world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.1, 0.2, 0.5))));
+ //   world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
+ //   world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.0)));
+	//world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Dielectric>(1.5)));
 
 	// begin rendering
     clock_t begin = clock();

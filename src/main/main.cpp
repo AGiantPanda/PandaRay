@@ -38,6 +38,50 @@ Vec3f gammaCorrection(Vec3f &color, float gamma)
 	return color;
 }
 
+void genRandomWorld(Shape_List &world)
+{
+	world.Add(make_unique<Sphere>(0.0, -1000.0, 0.0, 1000, make_shared<Lambertian>(Vec3f(0.5, 0.5, 0.5))));
+
+	for (int i = -11; i < 11; i++)
+	{
+		for (int j = -11; j < 11; j++)
+		{
+			float ranMat = random_double();
+			Vec3f ranCenter(i + 0.9*random_double(), 0.2, j + 0.9*random_double());
+			float ranRadius = random_double() * 0.2 + 0.2;
+			if ((ranCenter - Vec3f(4, 0.2, 0)).length() > 0.9)
+			{
+				if (ranMat < 0.6)
+				{
+					// diffuse
+					world.Add(make_unique<Sphere>(ranCenter, ranRadius, make_shared<Lambertian>(Vec3f(
+						random_double()*random_double(), 
+						random_double()*random_double(), 
+						random_double()*random_double()))));
+				}
+				else if (ranMat < 0.85)
+				{
+					// metal
+					world.Add(make_unique<Sphere>(ranCenter, ranRadius, make_shared<Metal>(Vec3f(
+						0.5*(1 + random_double()),
+						0.5*(1 + random_double()),
+						0.5*(1 + random_double())),
+						0.5*random_double())));
+				}
+				else
+				{
+					// dielectric
+					world.Add(make_unique<Sphere>(ranCenter, ranRadius, make_shared<Dielectric>(1.5)));
+				}
+			}
+		}
+	}
+
+	world.Add(make_unique<Sphere>(0.0, 1.0, 0.0, 1, make_shared<Dielectric>(1.5)));
+	world.Add(make_unique<Sphere>(-4.0, 1.0, 0.0, 1, make_shared<Lambertian>(Vec3f(0.4, 0.2, 0.1))));
+	world.Add(make_unique<Sphere>(4.0, 1.0, 0.0, 1, make_shared<Metal>(Vec3f(0.7, 0.6, 0.5), 0.0)));
+}
+
 int main(int argc, char const *argv[])
 {
 	string filename = "output";

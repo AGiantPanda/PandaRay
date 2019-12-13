@@ -42,12 +42,13 @@ int main(int argc, char const *argv[])
 {
 	string filename = "output";
 
-    int n_sample = 128;
+    int n_sample = 64;
 
     // image resolutions
     int nx = 200;
     int ny = 100;
     int totalPixel = nx * ny;
+	float aspectRatio = float(nx) / float(ny);
 
 	filename = filename + "_" + to_string(nx) + "x" + to_string(ny) + ".ppm";
 	cout << "target output: " << filename << endl;
@@ -57,14 +58,20 @@ int main(int argc, char const *argv[])
     output.open(filename);
     output << "P3\n" << nx << " " << ny << "\n255\n";
 
-    Camera cam;
+	// world settings
+	Vec3f lookFrom(3, 3, 2);
+	Vec3f lookAt(0, 0, -1);
+	float dist_to_focus = (lookFrom - lookAt).length();
+	float aperture = 2.0;
+    Camera cam(lookFrom, lookAt, Vec3f(0, 1, 0), 20, aspectRatio, aperture, dist_to_focus);
 
     Shape_List world;
     world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.1, 0.2, 0.5))));
     world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
     world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.0)));
 	world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Dielectric>(1.5)));
-    
+
+	// begin rendering
     clock_t begin = clock();
     cout << "rendering start..." << endl;
 

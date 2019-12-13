@@ -9,6 +9,6 @@ include_directories(src/*)
 
 # renderer
 # add_executable(pdray src/main/main.cpp)
-file(GLOB SOURCES "src/*/*.cpp")
+file(GLOB SOURCES "src/*/*")
  
 add_executable(pdray ${SOURCES})

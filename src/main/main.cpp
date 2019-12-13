@@ -7,6 +7,7 @@
 #include "../shapes/shapelist.h"
 #include "../materials/lambertian.h"
 #include "../materials/metal.h"
+#include "../materials/dielectric.h"
 
 using namespace std;
 
@@ -15,7 +16,7 @@ Vec3f color(const Ray &r, Shape_List &world, int depth) {
     if(world.IntersectRec(r, rec)) {
         Ray scattered;
         Vec3f attenuation;
-        if (depth < 25 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+        if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
             return attenuation * color(scattered, world, depth+1);
         } else {
             return Vec3f(0, 0, 0);
@@ -27,6 +28,16 @@ Vec3f color(const Ray &r, Shape_List &world, int depth) {
     }
 }
 
+Vec3f gammaCorrection(Vec3f &color, float gamma)
+{
+	float gamma_exp = 1 / gamma;
+	color[0] = powf(color[0], gamma_exp);
+	color[1] = powf(color[1], gamma_exp);
+	color[2] = powf(color[2], gamma_exp);
+
+	return color;
+}
+
 int main(int argc, char const *argv[])
 {
 	string filename = "output";
@@ -34,8 +45,8 @@ int main(int argc, char const *argv[])
     int n_sample = 128;
 
     // image resolutions
-    int nx = 800;
-    int ny = 400;
+    int nx = 200;
+    int ny = 100;
     int totalPixel = nx * ny;
 
 	filename = filename + "_" + to_string(nx) + "x" + to_string(ny) + ".ppm";
@@ -49,10 +60,10 @@ int main(int argc, char const *argv[])
     Camera cam;
 
     Shape_List world;
-    world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.8, 0.3, 0.3))));
+    world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.1, 0.2, 0.5))));
     world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
-    world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.1)));
-    world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.8, 0.8), 1.0)));
+    world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.0)));
+	world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Dielectric>(1.5)));
     
     clock_t begin = clock();
     cout << "rendering start..." << endl;
@@ -65,11 +76,10 @@ int main(int argc, char const *argv[])
                 float u = float(i+random_double()) / float(nx);
                 float v = float(j+random_double()) / float(ny);
                 Ray r = cam.GetRay(u, v);
-				r.tMin = 0.001;
                 col += color(r, world, 0);
             }
             col /= float(n_sample);
-            col = Vec3f(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+			col = gammaCorrection(col, 2.2);
             int ir = int(255.99 * col[0]);
             int ig = int(255.99 * col[1]);
             int ib = int(255.99 * col[2]);

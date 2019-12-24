@@ -1,9 +1,5 @@
-#include <thread>
-
 #include "../cores/pandaray.h"
-#include "../cores/vec3.h"
-#include "../cores/ray.h"
-#include "../cores/camera.h"
+
 #include "../shapes/sphere.h"
 #include "../shapes/shapelist.h"
 #include "../materials/lambertian.h"
@@ -83,6 +79,25 @@ void genRandomWorld(Shape_List &world, int num)
 	world.Add(make_unique<Sphere>(4.0, 1.0, 0.0, 1, make_shared<Metal>(Vec3f(0.7, 0.6, 0.5), 0.0)));
 }
 
+Vec3f calcPixelColor(int w, int h, Camera& cam, Shape_List& world, int samples, int width, int height)
+{
+	Vec3f col(0.0, 0.0, 0.0);
+	for (int s = 0; s < samples; s++) {
+		float u = float(w + random_double()) / float(width);
+		float v = float(h + random_double()) / float(height);
+		Ray r = cam.GetRay(u, v);
+		col += color(r, world, 0);
+	}
+	col /= float(samples);
+
+	return col;
+}
+
+void calcPixelColorByThread(vector<int>& pic, Camera& cam, Shape_List& world, int samples, int width, int height, int ct = 1)
+{
+
+}
+
 int main(int argc, char const *argv[])
 {
 	unsigned int c = std::thread::hardware_concurrency();
@@ -90,62 +105,74 @@ int main(int argc, char const *argv[])
 
 	string filename = "output";
 
-    int n_sample = 256;
+    int n_sample = 64;
 
     // image resolutions
-    int nx = 800;
-    int ny = 400;
-    int totalPixel = nx * ny;
-	float aspectRatio = float(nx) / float(ny);
+    int width = 400;
+    int height = 200;
+    int totalPixel = width * height;
+	float aspectRatio = float(width) / float(height);
+	vector<Vec3f> outPicture(totalPixel);
 
-	filename = filename + "_" + to_string(nx) + "x" + to_string(ny) + ".ppm";
+	filename = filename + "_" + to_string(width) + "x" + to_string(height) + ".ppm";
 	cout << "target output: " << filename << endl;
-	cout << "resolution: " << to_string(nx) << "x" << to_string(ny) << endl;
+	cout << "resolution: " << to_string(width) << "x" << to_string(height) << endl;
 
     ofstream output;
     output.open(filename);
-    output << "P3\n" << nx << " " << ny << "\n255\n";
+    output << "P3\n" << width << " " << height << "\n255\n";
 
 	// world settings
-	Vec3f lookFrom(8, 2, 2);
-	Vec3f lookAt(0, 0, 0);
+	Vec3f lookFrom(0, 1, 3);
+	Vec3f lookAt(0, 1, 0);
 	float dist_to_focus = (lookFrom - lookAt).length();
-	float aperture = 1.0;
-    Camera cam(lookFrom, lookAt, Vec3f(0, 1, 0), 40, aspectRatio, aperture, dist_to_focus);
+	float aperture = 0.1;
+	Camera cam(lookFrom, lookAt, Vec3f(0, 1, 0), 90, aspectRatio, aperture, dist_to_focus);
 
-    Shape_List world;
+	Shape_List world;
 	//genRandomWorld(world, 11);
-    world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.1, 0.2, 0.5))));
-    world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
-    world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.0)));
-	world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Dielectric>(1.5)));
+	world.Add(make_unique<Sphere>(0.0, -100, 0.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
+	world.Add(make_unique<Sphere>(0.0, 1.0, 0.0, 1.0, make_shared<Lambertian>(Vec3f(0.1, 0.2, 0.5))));
+	world.Add(make_unique<Sphere>(2, 1.0, 0.0, 1.0, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.0)));
+	world.Add(make_unique<Sphere>(-2, 1.0, 0.0, 1.0, make_shared<Dielectric>(1.5)));
 
 	// begin rendering
     clock_t begin = clock();
     cout << "rendering start..." << endl;
 
-    int pixCount = 0;
-    for (int j = ny-1; j>=0; j--) {
-        for (int i = 0; i < nx; i++) {
-            Vec3f col(0.0, 0.0, 0.0);
-            for (int s = 0; s < n_sample; s++) {
-                float u = float(i+random_double()) / float(nx);
-                float v = float(j+random_double()) / float(ny);
-                Ray r = cam.GetRay(u, v);
-                col += color(r, world, 0);
-            }
-            col /= float(n_sample);
-			col = gammaCorrection(col, 2.2);
-            int ir = int(255.99 * col[0]);
-            int ig = int(255.99 * col[1]);
-            int ib = int(255.99 * col[2]);
-            output << ir << " " << ig << " " << ib << "\n";
-            pixCount++;
-            cout << "\rrendering progress: " << int(pixCount * 100 / totalPixel) << "%, " << pixCount << "/" << totalPixel << flush;
-        }
-    }
+   // int pixCount = 0;
+   // for (int j = height-1; j>=0; j--) {
+   //     for (int i = 0; i < width; i++) {
+   //         Vec3f col = calcPixelColor(i, j, cam, world, n_sample, width, height);
+			//col = gammaCorrection(col, 2.2);
+   //         int ir = int(255.99 * col[0]);
+   //         int ig = int(255.99 * col[1]);
+   //         int ib = int(255.99 * col[2]);
+   //         output << ir << " " << ig << " " << ib << "\n";
+   //         pixCount++;
+   //         cout << "\rrendering progress: " << int(pixCount * 100 / totalPixel) << "%, " << pixCount << "/" << totalPixel << flush;
+   //     }
+   // }
 
-    cout << endl;
+	// from left->right, top->down
+	for (int pix = 0; pix < totalPixel; pix++)
+	{
+		int h = pix / width;
+		int w = pix - h * width;
+		Vec3f col = calcPixelColor(w, h, cam, world, n_sample, width, height);
+		outPicture[pix] = col;
+	}
+
+	cout << "writing to output file...";
+	for (int pix = 0; pix < totalPixel; pix++)
+	{
+		int ir = int(255.99 * outPicture[pix][0]);
+		int ig = int(255.99 * outPicture[pix][1]);
+		int ib = int(255.99 * outPicture[pix][2]);
+		output << ir << " " << ig << " " << ib << "\n";
+	}
+
+    cout << "done" << endl;
 
     output.close();
 

@@ -1,5 +1,6 @@
-#include "../cores/pandaray.h"
+#include <thread>
 
+#include "../cores/pandaray.h"
 #include "../cores/vec3.h"
 #include "../cores/ray.h"
 #include "../cores/camera.h"
@@ -84,6 +85,9 @@ void genRandomWorld(Shape_List &world, int num)
 
 int main(int argc, char const *argv[])
 {
+	unsigned int c = std::thread::hardware_concurrency();
+	std::cout << " number of threads detected: " << c << std::endl;;
+
 	string filename = "output";
 
     int n_sample = 256;
@@ -110,11 +114,11 @@ int main(int argc, char const *argv[])
     Camera cam(lookFrom, lookAt, Vec3f(0, 1, 0), 40, aspectRatio, aperture, dist_to_focus);
 
     Shape_List world;
-	genRandomWorld(world, 11);
- //   world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.1, 0.2, 0.5))));
- //   world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
- //   world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.0)));
-	//world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Dielectric>(1.5)));
+	//genRandomWorld(world, 11);
+    world.Add(make_unique<Sphere>(0.0, 0.0, -1.0, 0.5, make_shared<Lambertian>(Vec3f(0.1, 0.2, 0.5))));
+    world.Add(make_unique<Sphere>(0, -100.5, -1.0, 100, make_shared<Lambertian>(Vec3f(0.8, 0.8, 0.0))));
+    world.Add(make_unique<Sphere>(1, 0, -1, 0.5, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.0)));
+	world.Add(make_unique<Sphere>(-1, 0, -1, 0.5, make_shared<Dielectric>(1.5)));
 
 	// begin rendering
     clock_t begin = clock();

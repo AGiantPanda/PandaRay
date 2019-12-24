@@ -12,6 +12,7 @@
 #include <functional>
 #include <random>
 #include <ctime>
+#include <thread>
 
 inline double random_double()
 {
@@ -30,15 +31,15 @@ static float Inv2Pi = 0.15915494309189533577;
 
 #include "../cores/vec3.h"
 #include "../cores/ray.h"
+#include "../cores/camera.h"
 
-// #include "../cores/shape.h"
-// #include "../cores/material.h"
+#include "../cores/shape.h"
+#include "../shapes/shapelist.h"
+#include "../shapes/sphere.h"
 
-// Global Forward Declaration
-class Shape;
-class Material;
-struct hit_record;
-
-
+#include "../cores/material.h"
+#include "../materials/lambertian.h"
+#include "../materials/metal.h"
+#include "../materials/dielectric.h"
 
 #endif

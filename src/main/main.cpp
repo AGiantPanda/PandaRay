@@ -1,14 +1,4 @@
-#include <thread>
-
 #include "../cores/pandaray.h"
-#include "../cores/vec3.h"
-#include "../cores/ray.h"
-#include "../cores/camera.h"
-#include "../shapes/sphere.h"
-#include "../shapes/shapelist.h"
-#include "../materials/lambertian.h"
-#include "../materials/metal.h"
-#include "../materials/dielectric.h"
 
 using namespace std;
 

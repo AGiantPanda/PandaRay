@@ -6,6 +6,8 @@
 #include "../materials/metal.h"
 #include "../materials/dielectric.h"
 
+#include "../cores/threadpool.h"
+
 using namespace std;
 
 Vec3f color(const Ray &r, Shape_List &world, int depth) {
@@ -100,7 +102,7 @@ void calcPixelColorByThread(vector<int>& pic, Camera& cam, Shape_List& world, in
 
 int main(int argc, char const *argv[])
 {
-	unsigned int c = std::thread::hardware_concurrency();
+	/*unsigned int c = std::thread::hardware_concurrency();
 	std::cout << " number of threads detected: " << c << std::endl;;
 
 	string filename = "output";
@@ -140,20 +142,6 @@ int main(int argc, char const *argv[])
     clock_t begin = clock();
     cout << "rendering start..." << endl;
 
-   // int pixCount = 0;
-   // for (int j = height-1; j>=0; j--) {
-   //     for (int i = 0; i < width; i++) {
-   //         Vec3f col = calcPixelColor(i, j, cam, world, n_sample, width, height);
-			//col = gammaCorrection(col, 2.2);
-   //         int ir = int(255.99 * col[0]);
-   //         int ig = int(255.99 * col[1]);
-   //         int ib = int(255.99 * col[2]);
-   //         output << ir << " " << ig << " " << ib << "\n";
-   //         pixCount++;
-   //         cout << "\rrendering progress: " << int(pixCount * 100 / totalPixel) << "%, " << pixCount << "/" << totalPixel << flush;
-   //     }
-   // }
-
 	// from left->right, top->down
 	for (int pix = 0; pix < totalPixel; pix++)
 	{
@@ -178,6 +166,37 @@ int main(int argc, char const *argv[])
 
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "redering finished, time: " << elapsed_secs << endl;
-    return 0;
+    cout << "redering finished, time: " << elapsed_secs << endl;*/
+
+	unsigned int c = std::thread::hardware_concurrency();
+	std::cout << " number of total threads detected: " << c << std::endl;
+
+	clock_t begin = clock();
+
+	std::vector<ThreadPool::TaskFuture<void>> v;
+	ThreadPool tp_7(7);
+	vector<int> test(21);
+
+	for (int i = 0; i < test.size(); ++i)
+	{
+		v.push_back(tp_7.submit([](const vector<int>& v, int i)
+		{
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+			cout << i << endl;
+		}, std::cref(test), i));
+	}
+
+	for (auto& item : v)
+	{
+		item.get();
+	}
+
+	clock_t end = clock();
+	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	cout << "redering finished, time: " << elapsed_secs << endl;
+	for (auto item : test)
+	{
+		cout << item << endl;
+	}
+	return 0;
 }

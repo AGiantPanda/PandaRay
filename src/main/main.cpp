@@ -100,14 +100,19 @@ void calcPixelColorByThread(vector<int>& pic, Camera& cam, Shape_List& world, in
 
 }
 
+void someProcess(vector<int>& v, int i)
+{
+	if (i >= 0 && i < v.size())
+		v[i] = i;
+	this_thread::sleep_for(chrono::seconds(1));
+}
+
 int main(int argc, char const *argv[])
 {
-	/*unsigned int c = std::thread::hardware_concurrency();
-	std::cout << " number of threads detected: " << c << std::endl;;
-
 	string filename = "output";
 
     int n_sample = 64;
+	int threadNum = 5;
 
     // image resolutions
     int width = 400;
@@ -138,6 +143,10 @@ int main(int argc, char const *argv[])
 	world.Add(make_unique<Sphere>(2, 1.0, 0.0, 1.0, make_shared<Metal>(Vec3f(0.8, 0.6, 0.2), 0.0)));
 	world.Add(make_unique<Sphere>(-2, 1.0, 0.0, 1.0, make_shared<Dielectric>(1.5)));
 
+	// creating threadpool
+	std::vector<ThreadPool::TaskFuture<void>> taskVector;
+	ThreadPool threadPool(threadNum);
+
 	// begin rendering
     clock_t begin = clock();
     cout << "rendering start..." << endl;
@@ -147,8 +156,16 @@ int main(int argc, char const *argv[])
 	{
 		int h = pix / width;
 		int w = pix - h * width;
-		Vec3f col = calcPixelColor(w, h, cam, world, n_sample, width, height);
-		outPicture[pix] = col;
+		//outPicture[pix] = calcPixelColor(w, h, cam, world, n_sample, width, height);
+		taskVector.push_back(threadPool.submit([](vector<Vec3f>& outPicture, int w, int h, Camera& cam, Shape_List& world, int n_sample, int width, int height, int pix)
+		{
+			outPicture[pix] = calcPixelColor(w, h, cam, world, n_sample, width, height);
+		}, std::ref(outPicture), w, h, std::ref(cam), std::ref(world), n_sample, width, height, pix));
+	}
+
+	for (auto& item : taskVector)
+	{
+		item.get();
 	}
 
 	cout << "writing to output file...";
@@ -166,37 +183,7 @@ int main(int argc, char const *argv[])
 
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "redering finished, time: " << elapsed_secs << endl;*/
+    cout << "redering finished, time: " << elapsed_secs << endl;
 
-	unsigned int c = std::thread::hardware_concurrency();
-	std::cout << " number of total threads detected: " << c << std::endl;
-
-	clock_t begin = clock();
-
-	std::vector<ThreadPool::TaskFuture<void>> v;
-	ThreadPool tp_7(7);
-	vector<int> test(21);
-
-	for (int i = 0; i < test.size(); ++i)
-	{
-		v.push_back(tp_7.submit([](const vector<int>& v, int i)
-		{
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-			cout << i << endl;
-		}, std::cref(test), i));
-	}
-
-	for (auto& item : v)
-	{
-		item.get();
-	}
-
-	clock_t end = clock();
-	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	cout << "redering finished, time: " << elapsed_secs << endl;
-	for (auto item : test)
-	{
-		cout << item << endl;
-	}
 	return 0;
 }
